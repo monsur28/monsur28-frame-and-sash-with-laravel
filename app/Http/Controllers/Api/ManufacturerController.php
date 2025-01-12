@@ -15,7 +15,7 @@ class ManufacturerController extends Controller
     public function storeBasicInfo(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id'        => 'required|integer|unique:manufacturers,user_id',
+            'user_id'        => 'required|string|unique:manufacturers,user_id',
             'user_name'      => 'required|string',
             'first_name'     => 'nullable|string',
             'last_name'      => 'nullable|string',
