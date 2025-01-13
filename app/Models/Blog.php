@@ -13,6 +13,7 @@ class Blog extends Model
         'blog_title',
         'author',
         'category',
+        'blog_content',
         'date',
         'status',
     ];

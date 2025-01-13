@@ -3,6 +3,7 @@
 use App\Models\Reseller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\ResellerController;
 use App\Http\Controllers\Api\ManufacturerController;
 
@@ -25,3 +26,5 @@ Route::prefix('resellers')->group(function () {
     Route::get('/{user_id}', [ResellerController::class, 'getResellerDetails']);
     Route::delete('/delete', [ResellerController::class, 'deleteReseller']);
 });
+
+Route::apiResource('blogs', BlogController::class);

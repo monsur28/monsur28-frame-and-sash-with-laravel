@@ -80,11 +80,6 @@ class ManufacturerController extends Controller
             $manufacturer->company_email = $request->company_email;
         }
 
-        // Update approval and password if provided
-        // if ($request->has('approved')) {
-        //     $manufacturer->approved = $request->approved;
-        // }
-
         if ($request->filled('password')) {
             $manufacturer->password = Hash::make($request->password);
         }
