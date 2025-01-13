@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add this to your CSS file or in a style tag */
+@media (max-width: 640px) {
+  .px-20 {
+    padding-left: 1rem; /* 16px */
+    padding-right: 1rem; /* 16px */
+  }
+
+  .text-3xl {
+    font-size: 1.875rem; /* 30px */
+  }
+
+  .w-28 {
+    width: 7rem; /* 112px */
+  }
+
+  .h-28 {
+    height: 7rem; /* 112px */
+  }
+
+  .p-10 {
+    padding: 2.5rem; /* 40px */
+  }
+
+  .p-6 {
+    padding: 1.5rem; /* 24px */
+  }
+}
+
+@media (min-width: 640px) {
+  .px-4 {
+    padding-left: 1rem; /* 16px */
+    padding-right: 1rem; /* 16px */
+  }
+}
+
+@media (min-width: 768px) {
+  .px-10 {
+    padding-left: 2.5rem; /* 40px */
+    padding-right: 2.5rem; /* 40px */
+  }
+
+  .text-3xl {
+    font-size: 2rem; /* 32px */
+  }
+}
+
+/* Hide scrollbar for webkit-based browsers */
+.overflow-auto::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.overflow-auto {
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for IE and Edge */
+.overflow-auto {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+.inter {
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased; /* Improves font rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%; /* Prevents unexpected font resizing on mobile browsers */
+}
+
+.roboto {
+  font-family: "Roboto", sans-serif;
+  -webkit-font-smoothing: antialiased; /* Improves font rendering */
+  text-rendering: optimizeLegibility;
+}
