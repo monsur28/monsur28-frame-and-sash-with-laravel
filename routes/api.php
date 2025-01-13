@@ -11,9 +11,10 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('manufacturers')->group(function () {
-    Route::post('/basic-info', [ManufacturerController::class, 'storeBasicInfo']);
-    Route::post('/company-info', [ManufacturerController::class, 'storeCompanyInfo']);
-    Route::post('/confirm', [ManufacturerController::class, 'confirm']);
+    // Route::post('/basic-info', [ManufacturerController::class, 'storeBasicInfo']);
+    // Route::post('/company-info', [ManufacturerController::class, 'storeCompanyInfo']);
+    // Route::post('/confirm', [ManufacturerController::class, 'confirm']);
+    Route::post('/store', [ManufacturerController::class, 'storeManufacturer']);
     Route::get('/{user_id}', [ManufacturerController::class, 'getManufacturerDetails']);
     Route::delete('/delete', [ManufacturerController::class, 'deleteManufacturer']);
 });

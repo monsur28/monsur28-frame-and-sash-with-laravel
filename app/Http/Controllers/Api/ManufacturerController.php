@@ -11,15 +11,16 @@ use Illuminate\Support\Facades\Validator;
 
 class ManufacturerController extends Controller
 {
-    // Store Basic Information
-    public function storeBasicInfo(Request $request)
+    public function storeManufacturer(Request $request)
     {
+        // Validate all data at once
         $validator = Validator::make($request->all(), [
-            'user_id'        => 'required|string|unique:manufacturers,user_id',
+            // Basic information
+            'user_id'        => 'required|string|unique:manufacturers,user_id,' . ($request->id ?? 'NULL'),
             'user_name'      => 'required|string',
             'first_name'     => 'nullable|string',
             'last_name'      => 'nullable|string',
-            'user_email'     => 'required|email|unique:manufacturers,user_email',
+            'user_email'     => 'required|email|unique:manufacturers,user_email,' . ($request->id ?? 'NULL'),
             'mobile_number'  => 'required|string|max:15',
             'country_region' => 'required|string',
             'language'       => 'required|string',
@@ -27,47 +28,45 @@ class ManufacturerController extends Controller
             'city'           => 'required|string',
             'state'          => 'nullable|string',
             'zip_code'       => 'nullable|string|max:10',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $manufacturer = Manufacturer::create([
-            'user_id'        => $request->user_id,
-            'user_name'      => $request->user_name,
-            'first_name'     => $request->first_name,
-            'last_name'      => $request->last_name,
-            'user_email'     => $request->user_email,
-            'mobile_number'  => $request->mobile_number,
-            'country_region' => $request->country_region,
-            'language'       => $request->language,
-            'address'        => $request->address,
-            'city'           => $request->city,
-            'state'          => $request->state,
-            'zip_code'       => $request->zip_code,
-        ]);
-
-        return response()->json(['message' => 'Basic information saved successfully'], 201);
-    }
-
-    // Store Company Information
-    public function storeCompanyInfo(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'user_id'        => 'required|integer|exists:manufacturers,user_id',
+            // Company information
             'company_name'   => 'required|string',
-            'company_image'  => 'required|image|mimes:jpg,jpeg,png|max:2048',
-            'nid'            => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'company_email'  => 'required|email|unique:manufacturers,company_email',
+            'company_image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'nid'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'company_email'  => 'nullable|email|unique:manufacturers,company_email,' . ($request->id ?? 'NULL'),
+
+            // Approval and password
+            'approved'       => 'nullable|boolean',
+            'password'       => 'nullable|string|min:8',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        // Check if manufacturer exists (for update, if ID is provided)
         $manufacturer = Manufacturer::where('user_id', $request->user_id)->first();
 
+        if (!$manufacturer) {
+            $manufacturer = new Manufacturer;
+        }
+
+        // Basic information update or creation
+        $manufacturer->user_id        = $request->user_id;
+        $manufacturer->user_name      = $request->user_name;
+        $manufacturer->first_name     = $request->first_name;
+        $manufacturer->last_name      = $request->last_name;
+        $manufacturer->user_email     = $request->user_email;
+        $manufacturer->mobile_number  = $request->mobile_number;
+        $manufacturer->country_region = $request->country_region;
+        $manufacturer->language       = $request->language;
+        $manufacturer->address        = $request->address;
+        $manufacturer->city           = $request->city;
+        $manufacturer->state          = $request->state;
+        $manufacturer->zip_code       = $request->zip_code;
+        $manufacturer->company_name   = $request->company_name;
+
+        // Handle file uploads if available
         if ($request->hasFile('company_image')) {
             $manufacturer->company_image = $request->file('company_image')->store('company_images');
         }
@@ -76,33 +75,24 @@ class ManufacturerController extends Controller
             $manufacturer->nid = $request->file('nid')->store('nid_files');
         }
 
-        $manufacturer->company_name = $request->company_name;
-        $manufacturer->company_email = $request->company_email;
-        $manufacturer->save();
-
-        return response()->json(['message' => 'Company information saved successfully'], 200);
-    }
-
-    // Confirm and Approve Manufacturer
-    public function confirm(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'user_id'   => 'required|integer|exists:manufacturers,user_id',
-            'approved'  => 'required|boolean',
-            'password'  => 'required|string|min:8',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+        // Update company email if provided
+        if ($request->has('company_email')) {
+            $manufacturer->company_email = $request->company_email;
         }
 
-        $manufacturer = Manufacturer::where('user_id', $request->user_id)->first();
+        // Update approval and password if provided
+        // if ($request->has('approved')) {
+        //     $manufacturer->approved = $request->approved;
+        // }
 
-        $manufacturer->approved = $request->approved;
-        $manufacturer->password = Hash::make($request->password);
+        if ($request->filled('password')) {
+            $manufacturer->password = Hash::make($request->password);
+        }
+
+        // Save or update manufacturer record
         $manufacturer->save();
 
-        return response()->json(['message' => 'Manufacturer confirmed and setup completed'], 200);
+        return response()->json(['message' => 'Manufacturer information saved successfully'], 200);
     }
 
     // Get Manufacturer Information
