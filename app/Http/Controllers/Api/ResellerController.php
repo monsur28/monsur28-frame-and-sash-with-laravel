@@ -11,99 +11,84 @@ use Illuminate\Support\Facades\Validator;
 
 class ResellerController extends Controller
 {
-       // Store Basic Information
-       public function storeBasicInfo(Request $request)
-       {
-           $validator = Validator::make($request->all(), [
-               'user_id'        => 'required|string|unique:resellers,user_id',
-               'user_name'      => 'required|string',
-               'first_name'     => 'nullable|string',
-               'last_name'      => 'nullable|string',
-               'user_email'     => 'required|email|unique:resellers,user_email',
-               'mobile_number'  => 'required|string|max:15',
-               'country_region' => 'required|string',
-               'language'       => 'required|string',
-               'address'        => 'required|string',
-               'city'           => 'required|string',
-               'state'          => 'nullable|string',
-               'zip_code'       => 'nullable|string|max:10',
-           ]);
+    public function storeReseller(Request $request)
+    {
+        // Validate all data at once
+        $validator = Validator::make($request->all(), [
+            // Basic information
+            'user_id'        => 'required|string|unique:resellers,user_id,' . ($request->id ?? 'NULL'),
+            'user_name'      => 'required|string',
+            'first_name'     => 'nullable|string',
+            'last_name'      => 'nullable|string',
+            'user_email'     => 'required|email|unique:resellers,user_email,' . ($request->id ?? 'NULL'),
+            'mobile_number'  => 'required|string|max:15',
+            'country_region' => 'required|string',
+            'language'       => 'required|string',
+            'address'        => 'required|string',
+            'city'           => 'required|string',
+            'state'          => 'nullable|string',
+            'zip_code'       => 'nullable|string|max:10',
 
-           if ($validator->fails()) {
-               return response()->json(['errors' => $validator->errors()], 422);
-           }
+            // Company information
+            'company_name'   => 'required|string',
+            'company_image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'nid'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'company_email'  => 'nullable|email|unique:resellers,company_email,' . ($request->id ?? 'NULL'),
 
-           $reseller = Reseller::create([
-               'user_id'        => $request->user_id,
-               'user_name'      => $request->user_name,
-               'first_name'     => $request->first_name,
-               'last_name'      => $request->last_name,
-               'user_email'     => $request->user_email,
-               'mobile_number'  => $request->mobile_number,
-               'country_region' => $request->country_region,
-               'language'       => $request->language,
-               'address'        => $request->address,
-               'city'           => $request->city,
-               'state'          => $request->state,
-               'zip_code'       => $request->zip_code,
-           ]);
+            // Approval and password
+            'approved'       => 'nullable|boolean',
+            'password'       => 'nullable|string|min:8',
+        ]);
 
-           return response()->json(['message' => 'Basic information saved successfully'], 201);
-       }
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-       // Store Company Information
-       public function storeCompanyInfo(Request $request)
-       {
-           $validator = Validator::make($request->all(), [
-               'user_id'        => 'required|integer|exists:resellers,user_id',
-               'company_name'   => 'required|string',
-               'company_image'  => 'required|image|mimes:jpg,jpeg,png|max:2048',
-               'nid'            => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-               'company_email'  => 'required|email|unique:resellers,company_email',
-           ]);
+        // Check if reseller exists (for update, if ID is provided)
+        $reseller = Reseller::where('user_id', $request->user_id)->first();
 
-           if ($validator->fails()) {
-               return response()->json(['errors' => $validator->errors()], 422);
-           }
+        if (!$reseller) {
+            $reseller = new Reseller;
+        }
 
-           $reseller = Reseller::where('user_id', $request->user_id)->first();
+        // Basic information update or creation
+        $reseller->user_id        = $request->user_id;
+        $reseller->user_name      = $request->user_name;
+        $reseller->first_name     = $request->first_name;
+        $reseller->last_name      = $request->last_name;
+        $reseller->user_email     = $request->user_email;
+        $reseller->mobile_number  = $request->mobile_number;
+        $reseller->country_region = $request->country_region;
+        $reseller->language       = $request->language;
+        $reseller->address        = $request->address;
+        $reseller->city           = $request->city;
+        $reseller->state          = $request->state;
+        $reseller->zip_code       = $request->zip_code;
+        $reseller->company_name   = $request->company_name;
 
-           if ($request->hasFile('company_image')) {
-               $reseller->company_image = $request->file('company_image')->store('company_images');
-           }
+        // Handle file uploads if available
+        if ($request->hasFile('company_image')) {
+            $reseller->company_image = $request->file('company_image')->store('company_images');
+        }
 
-           if ($request->hasFile('nid')) {
-               $reseller->nid = $request->file('nid')->store('nid_files');
-           }
+        if ($request->hasFile('nid')) {
+            $reseller->nid = $request->file('nid')->store('nid_files');
+        }
 
-           $reseller->company_name = $request->company_name;
-           $reseller->company_email = $request->company_email;
-           $reseller->save();
+        // Update company email if provided
+        if ($request->has('company_email')) {
+            $reseller->company_email = $request->company_email;
+        }
 
-           return response()->json(['message' => 'Company information saved successfully'], 200);
-       }
+        if ($request->filled('password')) {
+            $reseller->password = Hash::make($request->password);
+        }
 
-       // Confirm and Approve reseller
-       public function confirm(Request $request)
-       {
-           $validator = Validator::make($request->all(), [
-               'user_id'   => 'required|integer|exists:resellers,user_id',
-               'approved'  => 'required|boolean',
-               'password'  => 'required|string|min:8',
-           ]);
+        // Save or update reseller record
+        $reseller->save();
 
-           if ($validator->fails()) {
-               return response()->json(['errors' => $validator->errors()], 422);
-           }
-
-           $reseller = Reseller::where('user_id', $request->user_id)->first();
-
-           $reseller->approved = $request->approved;
-           $reseller->password = Hash::make($request->password);
-           $reseller->save();
-
-           return response()->json(['message' => 'reseller confirmed and setup completed'], 200);
-       }
+        return response()->json(['message' => 'Reseller information saved successfully'], 200);
+    }
 
        // Get reseller Information
        public function getresellerDetails($user_id)
