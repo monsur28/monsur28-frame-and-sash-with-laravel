@@ -120,30 +120,27 @@ class ResellerController extends Controller
            ], 200);
        }
 
+       //Get all resellers
+         public function getAllResellers()
+         {
+              $resellers = Reseller::all();
+
+              return response()->json($resellers, 200);
+         }
        // Delete reseller
-       public function deletereseller(Request $request)
+       public function deleteReseller($user_id)
        {
-           // Validate the user_id
-           $validator = Validator::make($request->all(), [
-               'user_id' => 'required|string|exists:resellers,user_id',
-           ]);
+           // Find the manufacturer by user_id
+           $manufacturer = Reseller::where('user_id', $user_id)->first();
 
-           // If validation fails, return errors
-           if ($validator->fails()) {
-               return response()->json(['errors' => $validator->errors()], 422);
+           // If manufacturer is not found, return error
+           if (!$manufacturer) {
+               return response()->json(['message' => 'Manufacturer not found'], 404);
            }
 
-           // Find the reseller by user_id
-           $reseller = Reseller::where('user_id', $request->user_id)->first();
+           // Delete the manufacturer
+           $manufacturer->delete();
 
-           // If reseller is not found, return error
-           if (!$reseller) {
-               return response()->json(['message' => 'reseller not found'], 404);
-           }
-
-           // Delete the reseller
-           $reseller->delete();
-
-           return response()->json(['message' => 'reseller deleted successfully'], 200);
+           return response()->json(['message' => 'Manufacturer deleted successfully'], 200);
        }
 }

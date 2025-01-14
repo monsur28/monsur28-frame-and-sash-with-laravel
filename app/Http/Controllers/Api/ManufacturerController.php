@@ -120,21 +120,19 @@ class ManufacturerController extends Controller
         ], 200);
     }
 
-    // Delete Manufacturer
-    public function deleteManufacturer(Request $request)
+    //Get all Manufacturers
+    public function getAllManufacturers()
     {
-        // Validate the user_id
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|string|exists:manufacturers,user_id',
-        ]);
+        $manufacturers = Manufacturer::all();
 
-        // If validation fails, return errors
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        return response()->json($manufacturers, 200);
+    }
 
+    // Delete Manufacturer
+    public function deleteManufacturer($user_id)
+    {
         // Find the manufacturer by user_id
-        $manufacturer = Manufacturer::where('user_id', $request->user_id)->first();
+        $manufacturer = Manufacturer::where('user_id', $user_id)->first();
 
         // If manufacturer is not found, return error
         if (!$manufacturer) {
