@@ -84,8 +84,15 @@ class ResellerController extends Controller
             $reseller->password = Hash::make($request->password);
         }
 
-        // Save or update reseller record
-        $reseller->save();
+        if ($request->has('approved')) {
+            if ($request->approved == 1) {
+                $reseller->approved = 1;
+                // Save or update rese$reseller record
+                 $reseller->save();
+            } else {
+                return response()->json(['message' => 'Data cannot be saved unless approved is set to 1'], 403);
+            }
+        }
 
         return response()->json(['message' => 'Reseller information saved successfully'], 200);
     }

@@ -36,12 +36,17 @@ class ManufacturerController extends Controller
             'company_email'  => 'nullable|email|unique:manufacturers,company_email,' . ($request->id ?? 'NULL'),
 
             // Approval and password
-            'approved'       => 'nullable|boolean',
+            'approved'       => 'required|boolean',
             'password'       => 'nullable|string|min:8',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Check if `approved` is not equal to 1
+        if ($request->approved != 1) {
+            return response()->json(['message' => 'Data cannot be saved unless approved is set to 1'], 403);
         }
 
         // Check if manufacturer exists (for update, if ID is provided)
@@ -84,9 +89,15 @@ class ManufacturerController extends Controller
             $manufacturer->password = Hash::make($request->password);
         }
 
-        // Save or update manufacturer record
-        $manufacturer->save();
-
+        if ($request->has('approved')) {
+            if ($request->approved == 1) {
+                $manufacturer->approved = 1;
+                // Save or update manufacturer record
+                 $manufacturer->save();
+            } else {
+                return response()->json(['message' => 'Data cannot be saved unless approved is set to 1'], 403);
+            }
+        }
         return response()->json(['message' => 'Manufacturer information saved successfully'], 200);
     }
 
