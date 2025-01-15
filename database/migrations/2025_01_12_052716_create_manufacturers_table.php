@@ -34,6 +34,7 @@ return new class extends Migration
             //confirm details
             $table->boolean('approved')->default(false);
             $table->string('password')->nullable();
+            $table->string('roles')->default('manufacturer');
             $table->timestamps();
         });
     }

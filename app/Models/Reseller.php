@@ -28,7 +28,8 @@ class Reseller extends Model
         'nid',
         'company_email',
         'approved',
-        'password'
+        'password',
+        'roles',
     ];
 
     // Hidden properties for arrays
