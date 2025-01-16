@@ -2,6 +2,7 @@
 
 use App\Models\Reseller;
 use Illuminate\Http\Request;
+use App\Http\Middleware\JwtAuth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlogController;
@@ -9,8 +10,8 @@ use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\DiscountController;
 use App\Http\Controllers\Api\ResellerController;
 use App\Http\Controllers\Api\SiteInfoController;
+use App\Http\Controllers\Api\ProductCategoryController;
 use App\Http\Controllers\Api\ManufacturerController;
-use App\Http\Middleware\JwtAuth;
 
 
 Route::get('/user', function (Request $request) {
@@ -18,7 +19,11 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/test-login', [AuthController::class, 'testLogin'])->middleware('auth.jwt');
+Route::post('/logout', [AuthController::class, 'logout']) ->middleware('auth.jwt');
+// Route::get('/test-login', [AuthController::class, 'testLogin'])->middleware('auth.jwt');
+
+//product category
+Route::apiResource('product-categories', ProductCategoryController::class);
 
 //manufacturers
 Route::prefix('manufacturers')->group(function () {

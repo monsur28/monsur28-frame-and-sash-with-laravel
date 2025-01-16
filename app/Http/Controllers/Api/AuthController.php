@@ -66,18 +66,68 @@ class AuthController extends Controller
         ]);
     }
 
-    // Method to test if login token works
-    public function testLogin()
+    // Logout Method
+    public function logout(Request $request)
     {
         try {
+            // Get the JWT token from the request
+            $token = JWTAuth::getToken();
+
+            // Parse the token and get the user information
             $user = JWTAuth::parseToken()->authenticate();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            // Get the user_email from the token payload to match credentials
+            $userEmail = JWTAuth::getPayload()->get('user_email');
+            $userPassword = JWTAuth::getPayload()->get('password'); // Assuming password is also saved in the payload
+
+            // Check the credentials in all three tables (Reseller, Manufacturer, SuperAdmin)
+            $user = null;
+            $userType = null;
+
+            // Check Resellers table
+            $user = Reseller::where('user_email', $userEmail)->first();
+            $userType = 'reseller';
+
+            // Check Manufacturers table if not found in Resellers
+            if (!$user) {
+                $user = Manufacturer::where('user_email', $userEmail)->first();
+                $userType = 'manufacturer';
+            }
+
+            // Check Super Admins table if not found in Manufacturers
+            // if (!$user) {
+            //     $user = SuperAdmin::where('user_email', $userEmail)->first();
+            //     $userType = 'super_admin';
+            // }
+
+            // If user not found or password mismatch
+            if (!$user || !Hash::check($userPassword, $user->password)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid credentials'
+                ], 401);
+            }
+
+            // If user is found, invalidate the token
+            JWTAuth::invalidate($token);
+
             return response()->json([
                 'status' => 'success',
-                'message' => 'Token is valid',
-                'user' => $user
+                'message' => 'Logout successful'
             ]);
         } catch (JWTException $e) {
-            return response()->json(['status' => 'error', 'message' => 'Token is invalid or expired'], 401);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to logout, please try again'
+            ], 500);
         }
     }
+
 }
