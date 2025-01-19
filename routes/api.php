@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\PackageController;
 use App\Http\Controllers\Api\DiscountController;
 use App\Http\Controllers\Api\ResellerController;
 use App\Http\Controllers\Api\SiteInfoController;
-use App\Http\Controllers\Api\ProductCategoryController;
 use App\Http\Controllers\Api\ManufacturerController;
+use App\Http\Controllers\Api\ProductCategoryController;
 
 
 Route::get('/user', function (Request $request) {
@@ -62,3 +63,14 @@ Route::get('/discounts', [DiscountController::class, 'index']);
 Route::post('/discounts', [DiscountController::class, 'store']);
 Route::put('/discounts/{id}', [DiscountController::class, 'update']);
 Route::delete('/discounts/{id}', [DiscountController::class, 'destroy']);
+
+//packages
+Route::prefix('packages')->group(function () {
+    Route::get('/', [PackageController::class, 'index']); // Get all packages with features
+    Route::get('/{id}', [PackageController::class, 'show']); // Get a single package with features
+    Route::post('/', [PackageController::class, 'store']); // Create a package with features
+    Route::put('/{id}', [PackageController::class, 'update']); // Update a package with features
+    Route::delete('/{id}', [PackageController::class, 'destroy']); // Delete a package and its features
+});
+
+

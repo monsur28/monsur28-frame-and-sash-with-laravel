@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('site_infos', function (Blueprint $table) {
             $table->id(); // Auto-increment primary key
+            $table->string('siteTitle')->nullable(); // Name of the site
             $table->text('short_description')->nullable(); // Short description of the site
             $table->string('copy_right')->nullable(); // Copyright text
             $table->string('address')->nullable(); // Address

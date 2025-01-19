@@ -11,6 +11,7 @@ class SiteInfo extends Model
 
     // Fillable properties to allow mass assignment
     protected $fillable = [
+        'siteTitle',
         'short_description',
         'copy_right',
         'address',

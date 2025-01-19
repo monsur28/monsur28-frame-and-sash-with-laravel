@@ -19,6 +19,7 @@ class SiteInfoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'siteTitle'         => 'nullable|string',
             'short_description' => 'nullable|string',
             'copy_right'        => 'nullable|string',
             'address'           => 'nullable|string',
