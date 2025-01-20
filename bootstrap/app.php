@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Middleware\HandleCors;
 use App\Http\Middleware\JwtAuth;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -14,7 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         // Register your middleware here
+
         $middleware->alias([
+            'cors' => HandleCors::class,   // Global CORS middleware
             'auth.jwt' => JwtAuth::class,
         ]);
     })

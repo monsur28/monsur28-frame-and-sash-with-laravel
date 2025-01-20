@@ -65,12 +65,15 @@ Route::put('/discounts/{id}', [DiscountController::class, 'update']);
 Route::delete('/discounts/{id}', [DiscountController::class, 'destroy']);
 
 //packages
-Route::prefix('packages')->group(function () {
-    Route::get('/', [PackageController::class, 'index']); // Get all packages with features
-    Route::get('/{id}', [PackageController::class, 'show']); // Get a single package with features
-    Route::post('/', [PackageController::class, 'store']); // Create a package with features
-    Route::put('/{id}', [PackageController::class, 'update']); // Update a package with features
-    Route::delete('/{id}', [PackageController::class, 'destroy']); // Delete a package and its features
-});
+// Route::prefix('packages')->group(function () {
+//     Route::get('/', [PackageController::class, 'index']); // Get all packages with features
+//     Route::get('/{id}', [PackageController::class, 'show']); // Get a single package with features
+//     Route::post('/', [PackageController::class, 'store']); // Create a package with features
+//     Route::put('/{id}', [PackageController::class, 'update']); // Update a package with features
+//     Route::delete('/{id}', [PackageController::class, 'destroy']); // Delete a package and its features
+// });
+
+//packages
+Route::apiResource('packages', PackageController::class);
 
 

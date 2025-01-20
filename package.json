@@ -2,9 +2,11 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "dev": "vite"
-    },
+    "dev": "vite",
+    "build": "REACT_APP_API_BASE_URL=http://frameandsash.great-site.net react-scripts build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
     "devDependencies": {
         "autoprefixer": "^10.4.20",
         "axios": "^1.7.4",

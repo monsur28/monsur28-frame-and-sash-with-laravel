@@ -25,7 +25,7 @@ class PackageController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string|unique:packages,name', // Ensure package name is unique
             'price' => 'required|numeric',
             'duration' => 'required|string',
             'features' => 'nullable|array',
@@ -33,6 +33,7 @@ class PackageController extends Controller
             'features.*.available' => 'required|boolean',
         ]);
 
+        // Create the package
         $package = Package::create([
             'name' => $validated['name'],
             'price' => $validated['price'],
@@ -41,11 +42,15 @@ class PackageController extends Controller
 
         if (!empty($validated['features'])) {
             foreach ($validated['features'] as $feature) {
-                $package->features()->create([
-                    'name' => $feature['name'],
-                    'available' => $feature['available'],
-                    'package_id' => $package->id, // Explicitly setting the package_id
-                ]);
+                // Prevent duplicate features within the same package
+                $existingFeature = $package->features()->where('name', $feature['name'])->first();
+                if (!$existingFeature) {
+                    $package->features()->create([
+                        'name' => $feature['name'],
+                        'available' => $feature['available'],
+                        'package_id' => $package->id,
+                    ]);
+                }
             }
         }
 
@@ -56,7 +61,7 @@ class PackageController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string|unique:packages,name,' . $id, // Ensure name is unique except for current package
             'price' => 'required|numeric',
             'duration' => 'required|string',
             'features' => 'nullable|array',
@@ -64,6 +69,7 @@ class PackageController extends Controller
             'features.*.available' => 'required|boolean',
         ]);
 
+        // Find and update the package
         $package = Package::findOrFail($id);
         $package->update([
             'name' => $validated['name'],
@@ -75,11 +81,14 @@ class PackageController extends Controller
             // Sync features
             $package->features()->delete();
             foreach ($validated['features'] as $feature) {
-                $package->features()->create([
-                    'name' => $feature['name'],
-                    'available' => $feature['available'],
-                    'package_id' => $package->id,
-                ]);
+                $existingFeature = $package->features()->where('name', $feature['name'])->first();
+                if (!$existingFeature) {
+                    $package->features()->create([
+                        'name' => $feature['name'],
+                        'available' => $feature['available'],
+                        'package_id' => $package->id,
+                    ]);
+                }
             }
         }
 
@@ -90,8 +99,8 @@ class PackageController extends Controller
     public function destroy($id)
     {
         $package = Package::findOrFail($id);
-        $package->features()->delete();
-        $package->delete();
+        $package->features()->delete(); // Delete all associated features
+        $package->delete(); // Delete the package
 
         return response()->json(['message' => 'Package deleted successfully']);
     }
